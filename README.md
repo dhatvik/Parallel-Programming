@@ -17,3 +17,12 @@ mpicc filename.c -o filename
 
 mpirun -np 2 ./filename
 
+
+To Install MAN PAGES
+
+
+sudo apt install mpich*
+
+
+man [required_pages]
+
