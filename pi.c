@@ -1,47 +1,34 @@
 #include<stdio.h>
+#include<stdlib.h>
 #include<omp.h>
-#define NUM_THREADS 12 // this line is very important
-static long num_steps = 100000; 
-double step;
+#define Terms 1000000
 
-void main()
-{
-int i;
-double x,pi,sum[NUM_THREADS];
-step = 1.0/(double) num_steps;
+void main(){
+    double piS=0.0;
+    double piP=0.0;
+    int k=0;
 
-#pragma omp parallel private(i,x)
-{
-int id = omp_get_thread_num();
-double local_sum = 0.0;
-for(i = id,sum[id]=0.0;i<num_steps;i+=NUM_THREADS){
-x = (i+0.5)*step;
-local_sum+= 4.0/(1.0+x*x);
-}
+    double start=omp_get_wtime();
+    for(k=0;k<Terms;k++){
+        double t=(k%2 == 0) ? 1.0 : -1.0;
+        piS  += t/(2.0 * k + 1.0);
+    }
+    double end=omp_get_wtime();
 
-#pragma omp critical
-{
-sum[0] += local_sum;
-}
+    piS*=4.0;
+    printf("\n Time for serial execution is %f",end-start);
+    printf("PI serial value %6.12f ",piS);
 
-}
-pi = sum[0]/num_steps;
-printf("pi = %6.12f\n",pi);
-}
+    start=omp_get_wtime();
+    #pragma omp parallel for reduction(+:piP)
+    for(k=0;k<Terms;k++){
+        double t=(k % 2 == 0) ? 1.0 : -1.0;
+        piP += t/(2.0 * k + 1.0);
+    }
+    end=omp_get_wtime();
 
-// sequential calculation of pi
-int num_steps=100000;
-double step;
-int main()
-{
- int i;
- double x, pi, sum=0.0;
- step=1.0/(double)num_steps;
- for(i=0;i<num_steps;i++)
- {
- x=(i+0.5)*step;
- sum=sum+4.0/(1.0+x*x);
- }
- pi=step*sum;
- printf("%6.12f ",pi);
+    piP*=4.0;
+    printf("\n Time for parallel execution is %f",end-start);
+    printf("PI parallel value %6.12f ",piP);
+    
 }
