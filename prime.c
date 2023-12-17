@@ -3,7 +3,7 @@
 #include<omp.h>
 
 int isPrime(int n){
-    if(n == 0 || n == 1){
+    if(n==0 || n==1){
         return 0;
     }
     for(int i=2;i<=n/2;i++){
@@ -13,19 +13,29 @@ int isPrime(int n){
     }
     return 1;
 }
+
 void main(){
-    int x=1;
+    int l=1;
     int n=50;
-    
+
     double start=omp_get_wtime();
-    
-    #pragma omp parallel for
+    #pragma omp parallel for 
     for(int i=1;i<=n;i++){
         if(isPrime(i)){
             int t=omp_get_thread_num();
-            printf("thread %d prime number %d\n",t,i);
+            printf("\n thread %d prime number  %d",t,i);
         }
     }
     double end=omp_get_wtime();
-    printf("\n Time taken is %f",end-start);
+    printf("Time for parallel execution is %f ",end-start);
+
+    start=omp_get_wtime();
+    for(int i=1;i<=n;i++){
+        if(isPrime(i)){
+            int t=omp_get_thread_num();
+            printf("\n thread %d prime number is %d ",t,i);
+        }
+    }
+    end=omp_get_wtime();
+    printf("Time for serial execution is %f ",end-start);
 }
